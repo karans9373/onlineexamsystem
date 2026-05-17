@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top, rgba(125, 211, 252, 0.28), transparent 30%),
+    linear-gradient(145deg, #f7fbff 0%, #eef6ff 45%, #fff7ed 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[data-theme='dark'] {
+  color: #e2e8f0;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 28%),
+    linear-gradient(145deg, #020617 0%, #0f172a 55%, #111827 100%);
+}
+
+html[data-theme='dark'] body {
+  background: transparent;
+}
+
+html[data-theme='dark'] .bg-white\/60,
+html[data-theme='dark'] .bg-white\/65,
+html[data-theme='dark'] .bg-white\/70,
+html[data-theme='dark'] .bg-white\/75,
+html[data-theme='dark'] .bg-white\/80 {
+  background-color: rgba(15, 23, 42, 0.74);
+}
+
+html[data-theme='dark'] .text-slate-950 {
+  color: #f8fafc;
+}
+
+html[data-theme='dark'] .text-slate-900 {
+  color: #f8fafc;
+}
+
+html[data-theme='dark'] .text-slate-800,
+html[data-theme='dark'] .text-slate-700,
+html[data-theme='dark'] .text-slate-600 {
+  color: #cbd5e1;
+}
+
+html[data-theme='dark'] .text-slate-500,
+html[data-theme='dark'] .text-slate-400 {
+  color: #94a3b8;
+}
+
+html[data-theme='dark'] .border-white\/35,
+html[data-theme='dark'] .border-white\/40,
+html[data-theme='dark'] .border-white\/45,
+html[data-theme='dark'] .border-white\/50 {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html[data-theme='dark'] .bg-slate-950 {
+  background-color: #e2e8f0;
+  color: #020617;
+}
+
+html[data-theme='dark'] .text-white {
+  color: #020617;
+}
+
+html[data-theme='dark'] .brand-cta {
+  color: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.brand-cta {
+  background:
+    linear-gradient(135deg, #0f172a 0%, #0b3b63 42%, #0284c7 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.brand-cta:hover {
+  filter: brightness(1.04);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes floatDelayed {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-28px) scale(1.04);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 10s ease-in-out infinite;
+}
