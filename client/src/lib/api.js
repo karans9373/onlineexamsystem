@@ -1,40 +1,15 @@
-const API_BASE = '/api'
+import axios from 'axios'
 
-export async function apiGet(path) {
-  const response = await fetch(`${API_BASE}${path}`)
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`)
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
+})
+
+api.interceptors.request.use((config) => {
+  const token = window.localStorage.getItem('astraexam-token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return response.json()
-}
+  return config
+})
 
-export async function apiPost(path, body) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Something went wrong.' }))
-    throw new Error(error.message ?? 'Something went wrong.')
-  }
-
-  return response.json()
-}
-
-export async function apiUpload(path, formData) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Upload failed.' }))
-    throw new Error(error.message ?? 'Upload failed.')
-  }
-
-  return response.json()
-}
+export default api
