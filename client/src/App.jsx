@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/AppLayout'
 import { SkeletonScreen } from './components/SkeletonScreen'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
+import { BackendStatusScreen } from './components/BackendStatusScreen'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const AuthPage = lazy(() => import('./pages/AuthPage'))
@@ -39,6 +40,8 @@ export default function App() {
   const dispatch = useDispatch()
   const theme = useSelector((state) => state.ui.theme)
   const token = useSelector((state) => state.auth.token)
+  const [backendStatus, setBackendStatus] = useState('checking')
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -54,6 +57,31 @@ export default function App() {
     }
   }, [dispatch, token])
 
+  const checkBackend = async () => {
+    setBackendStatus('checking')
+    try {
+      const response = await fetch(`${apiBaseUrl}/health`)
+      if (!response.ok) {
+        throw new Error('Health check failed')
+      }
+      setBackendStatus('ready')
+    } catch {
+      setBackendStatus('offline')
+    }
+  }
+
+  useEffect(() => {
+    checkBackend()
+  }, [])
+
+  if (backendStatus !== 'ready') {
+    return (
+      <AppLayout>
+        <BackendStatusScreen status={backendStatus} onRetry={checkBackend} apiBaseUrl={apiBaseUrl} />
+      </AppLayout>
+    )
+  }
+
   return (
     <AppLayout>
       <AppErrorBoundary>
@@ -61,7 +89,9 @@ export default function App() {
           <RouteTransition>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Navigate to="/login/student" replace />} />
               <Route path="/login/:role" element={<AuthPage mode="login" />} />
+              <Route path="/register" element={<Navigate to="/register/student" replace />} />
               <Route path="/register/:role" element={<AuthPage mode="register" />} />
               <Route
                 path="/student/dashboard"
