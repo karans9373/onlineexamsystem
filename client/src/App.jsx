@@ -60,7 +60,7 @@ export default function App() {
   const checkBackend = async () => {
     setBackendStatus('checking')
     try {
-      const response = await fetch(`${apiBaseUrl}/health`)
+      const response = await fetch(`${apiBaseUrl.trim()}/health`, { cache: 'no-store' })
       if (!response.ok) {
         throw new Error('Health check failed')
       }
@@ -74,7 +74,15 @@ export default function App() {
     checkBackend()
   }, [])
 
-  if (backendStatus !== 'ready') {
+  useEffect(() => {
+    if (backendStatus === 'ready') return undefined
+    const interval = window.setInterval(() => {
+      checkBackend()
+    }, 7000)
+    return () => window.clearInterval(interval)
+  }, [backendStatus])
+
+  if (backendStatus === 'checking') {
     return (
       <AppLayout>
         <BackendStatusScreen status={backendStatus} onRetry={checkBackend} apiBaseUrl={apiBaseUrl} />
@@ -84,6 +92,11 @@ export default function App() {
 
   return (
     <AppLayout>
+      {backendStatus === 'offline' && (
+        <div className="mb-4 rounded-[24px] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          Backend is still warming up or blocked by deployment settings. The app will keep retrying automatically.
+        </div>
+      )}
       <AppErrorBoundary>
         <Suspense fallback={<SkeletonScreen />}>
           <RouteTransition>

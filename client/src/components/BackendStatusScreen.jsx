@@ -1,5 +1,6 @@
 export function BackendStatusScreen({ status, onRetry, apiBaseUrl }) {
   const isLoading = status === 'checking'
+  const isOffline = status === 'offline'
 
   return (
     <div className="grid min-h-[75vh] place-items-center">
@@ -24,6 +25,14 @@ export function BackendStatusScreen({ status, onRetry, apiBaseUrl }) {
           <button onClick={onRetry} className="btn-primary rounded-full px-5 py-3 font-semibold">
             Retry Connection
           </button>
+          {isOffline && (
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white"
+            >
+              Refresh App
+            </button>
+          )}
           <a href="/" className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white">
             Back to Home
           </a>
