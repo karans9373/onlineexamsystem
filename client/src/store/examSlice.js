@@ -105,6 +105,19 @@ export const aiGenerateQuestions = createAsyncThunk('exam/aiGenerate', async (pa
   }
 })
 
+export const importQuestionFile = createAsyncThunk('exam/importQuestionFile', async ({ examId, file }, thunkApi) => {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post(`/teacher/import-questions?exam_id=${examId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  } catch (error) {
+    return thunkApi.rejectWithValue(error.response?.data?.detail || 'Question paper upload failed')
+  }
+})
+
 export const fetchAdminUsers = createAsyncThunk('exam/adminUsers', async (_, thunkApi) => {
   try {
     const { data } = await api.get('/admin/users')
@@ -198,6 +211,12 @@ const examSlice = createSlice({
         state.teacherActionMessage = `Generated ${action.payload.length} quality questions.`
       })
       .addCase(aiGenerateQuestions.rejected, (state, action) => {
+        state.error = action.payload
+      })
+      .addCase(importQuestionFile.fulfilled, (state, action) => {
+        state.teacherActionMessage = action.payload.message || 'Question paper uploaded successfully.'
+      })
+      .addCase(importQuestionFile.rejected, (state, action) => {
         state.error = action.payload
       })
       .addCase(fetchAdminUsers.fulfilled, (state, action) => {

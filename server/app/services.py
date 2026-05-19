@@ -8,6 +8,7 @@ import json
 from openai import OpenAI
 from openpyxl import load_workbook
 from pypdf import PdfReader
+from docx import Document
 from sqlalchemy.orm import Session
 
 from .config import get_settings
@@ -191,6 +192,17 @@ def parse_uploaded_questions(filename: str, file_bytes: bytes) -> list[dict[str,
                 current = []
         return parsed
 
+    if name.endswith(".docx"):
+        document = Document(BytesIO(file_bytes))
+        text = "\n".join(paragraph.text.strip() for paragraph in document.paragraphs if paragraph.text.strip())
+        file_bytes = text.encode("utf-8")
+
+    if name.endswith(".doc"):
+        # Best-effort legacy Word fallback: recover visible text when possible.
+        text = file_bytes.decode("latin-1", errors="ignore")
+        text = text.replace("\x00", " ")
+        file_bytes = text.encode("utf-8")
+
     if name.endswith(".xlsx"):
         workbook = load_workbook(BytesIO(file_bytes))
         sheet = workbook.active
@@ -218,7 +230,7 @@ def parse_uploaded_questions(filename: str, file_bytes: bytes) -> list[dict[str,
             )
         return parsed
 
-    text = file_bytes.decode("utf-8")
+    text = file_bytes.decode("utf-8", errors="ignore")
     parsed = []
     for block in [section.strip() for section in text.split("\n\n") if section.strip()]:
         lines = [line.strip() for line in block.splitlines() if line.strip()]
@@ -407,6 +419,35 @@ def _topic_bank() -> dict[str, list[dict[str, Any]]]:
     }
 
 
+def normalize_generated_questions(questions: list[dict[str, Any]], subject: str, bilingual: bool) -> list[dict[str, Any]]:
+    normalized = []
+    for index, question in enumerate(questions, start=1):
+        options = question.get("options") or []
+        if len(options) != 4:
+            options = [
+                {"key": "A", "label": "Option A"},
+                {"key": "B", "label": "Option B"},
+                {"key": "C", "label": "Option C"},
+                {"key": "D", "label": "Option D"},
+            ]
+        normalized.append(
+            {
+                "text_en": question.get("text_en") or f"{subject} Question {index}",
+                "text_hi": question.get("text_hi") if bilingual else None,
+                "options": [
+                    {"key": option.get("key", chr(65 + opt_index)), "label": option.get("label", f"Option {chr(65 + opt_index)}")}
+                    for opt_index, option in enumerate(options[:4])
+                ],
+                "correct_option": (question.get("correct_option") or "A").upper(),
+                "difficulty": question.get("difficulty") or "medium",
+                "topic": question.get("topic") or subject,
+                "marks": float(question.get("marks", 1)),
+                "explanation": question.get("explanation") or "Teacher review explanation.",
+            }
+        )
+    return normalized
+
+
 def fallback_generate_questions(prompt: str, question_count: int, subject: str, bilingual: bool = True):
     topics = _extract_topics(prompt, subject)
     bank = _topic_bank()
@@ -426,7 +467,11 @@ def fallback_generate_questions(prompt: str, question_count: int, subject: str, 
 def generate_questions_with_ai(prompt: str, question_count: int, subject: str, language_mode: str):
     bilingual = language_mode == "bilingual"
     if not settings.openai_api_key:
-        return fallback_generate_questions(prompt, question_count, subject, bilingual=bilingual)
+        return normalize_generated_questions(
+            fallback_generate_questions(prompt, question_count, subject, bilingual=bilingual),
+            subject,
+            bilingual,
+        )
 
     client = OpenAI(api_key=settings.openai_api_key)
     completion = client.responses.create(
@@ -456,6 +501,10 @@ def generate_questions_with_ai(prompt: str, question_count: int, subject: str, l
     text = completion.output_text
     try:
         payload = json.loads(text)
-        return payload["questions"]
+        return normalize_generated_questions(payload["questions"], subject, bilingual)
     except Exception:
-        return fallback_generate_questions(prompt, question_count, subject, bilingual=bilingual)
+        return normalize_generated_questions(
+            fallback_generate_questions(prompt, question_count, subject, bilingual=bilingual),
+            subject,
+            bilingual,
+        )

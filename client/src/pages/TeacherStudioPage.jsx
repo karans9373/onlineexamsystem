@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Trash2, WandSparkles } from 'lucide-react'
-import { aiGenerateQuestions, clearTeacherActionMessage, createExam, deleteExam, fetchDashboard, publishExam } from '../store/examSlice'
+import { FileUp, Trash2, WandSparkles } from 'lucide-react'
+import { aiGenerateQuestions, clearTeacherActionMessage, createExam, deleteExam, fetchDashboard, importQuestionFile, publishExam } from '../store/examSlice'
 import { GlassPanel } from '../components/GlassPanel'
 
 const emptyQuestion = {
@@ -37,6 +37,8 @@ export default function TeacherStudioPage() {
     questions: [structuredClone(emptyQuestion)],
   })
   const [aiPrompt, setAiPrompt] = useState('Create a Class 9 Maths paper of 10 MCQs on Algebra and Mensuration')
+  const [selectedExamId, setSelectedExamId] = useState('')
+  const [uploadFile, setUploadFile] = useState(null)
 
   useEffect(() => {
     dispatch(fetchDashboard('teacher'))
@@ -93,6 +95,17 @@ export default function TeacherStudioPage() {
     const result = await dispatch(deleteExam(examId))
     if (result.meta.requestStatus === 'fulfilled') {
       await dispatch(fetchDashboard('teacher'))
+    }
+  }
+
+  const handleUploadQuestionPaper = async () => {
+    if (!selectedExamId || !uploadFile) {
+      return
+    }
+    const result = await dispatch(importQuestionFile({ examId: selectedExamId, file: uploadFile }))
+    if (result.meta.requestStatus === 'fulfilled') {
+      await dispatch(fetchDashboard('teacher'))
+      setUploadFile(null)
     }
   }
 
@@ -212,6 +225,46 @@ export default function TeacherStudioPage() {
                 </button>
               </div>
             ))}
+          </div>
+        </GlassPanel>
+
+        <GlassPanel className="p-6">
+          <div className="flex items-center gap-3">
+            <FileUp className="h-6 w-6 text-cyan-300" />
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">Question paper upload</p>
+              <h2 className="font-display text-3xl text-white">Upload PDF, DOCX, DOC or TXT</h2>
+            </div>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-400">
+            Choose an existing exam, then upload a question paper. The parser supports `pdf`, `docx`, `txt`, `xlsx`, and best-effort `doc`.
+          </p>
+          <div className="mt-5 grid gap-3">
+            <select
+              className="rounded-2xl bg-white/6 px-4 py-3 text-white outline-none"
+              value={selectedExamId}
+              onChange={(e) => setSelectedExamId(e.target.value)}
+            >
+              <option value="">Select an exam to attach questions</option>
+              {(dashboard?.own_exams || []).map((exam) => (
+                <option key={exam.id} value={exam.id}>
+                  {exam.title}
+                </option>
+              ))}
+            </select>
+            <input
+              className="rounded-2xl bg-white/6 px-4 py-3 text-white outline-none"
+              type="file"
+              accept=".pdf,.doc,.docx,.txt,.xlsx"
+              onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+            />
+            <button
+              onClick={handleUploadQuestionPaper}
+              disabled={!selectedExamId || !uploadFile}
+              className="rounded-2xl bg-cyan-500/20 px-4 py-3 font-semibold text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Upload question paper
+            </button>
           </div>
         </GlassPanel>
 
