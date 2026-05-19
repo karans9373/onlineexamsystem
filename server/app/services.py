@@ -473,33 +473,33 @@ def generate_questions_with_ai(prompt: str, question_count: int, subject: str, l
             bilingual,
         )
 
-    client = OpenAI(api_key=settings.openai_api_key)
-    completion = client.responses.create(
-        model=settings.openai_model,
-        input=[
-            {
-                "role": "system",
-                "content": (
-                    "You generate high-quality multiple-choice questions as valid JSON only. "
-                    "Return an object with a 'questions' array. Each question must include text_en, text_hi, "
-                    "options as four items with keys A-D, correct_option, difficulty, topic, marks, explanation. "
-                    "Questions must be academically correct, non-random, and suitable for classroom or CBT exam use."
-                ),
-            },
-            {
-                "role": "user",
-                "content": (
-                    f"Subject: {subject}\n"
-                    f"Count: {question_count}\n"
-                    f"Language mode: {language_mode}\n"
-                    f"Teacher request: {prompt}\n"
-                    "Keep the paper balanced in difficulty and ensure every distractor is plausible."
-                ),
-            },
-        ],
-    )
-    text = completion.output_text
     try:
+        client = OpenAI(api_key=settings.openai_api_key)
+        completion = client.responses.create(
+            model=settings.openai_model,
+            input=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You generate high-quality multiple-choice questions as valid JSON only. "
+                        "Return an object with a 'questions' array. Each question must include text_en, text_hi, "
+                        "options as four items with keys A-D, correct_option, difficulty, topic, marks, explanation. "
+                        "Questions must be academically correct, non-random, and suitable for classroom or CBT exam use."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Subject: {subject}\n"
+                        f"Count: {question_count}\n"
+                        f"Language mode: {language_mode}\n"
+                        f"Teacher request: {prompt}\n"
+                        "Keep the paper balanced in difficulty and ensure every distractor is plausible."
+                    ),
+                },
+            ],
+        )
+        text = completion.output_text
         payload = json.loads(text)
         return normalize_generated_questions(payload["questions"], subject, bilingual)
     except Exception:

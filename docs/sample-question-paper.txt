@@ -1,0 +1,27 @@
+Question 1: If 2x + 3 = 11, what is the value of x?
+4
+5
+6
+7
+Answer: A
+
+Question 2: The area of a rectangle with length 8 cm and breadth 6 cm is:
+42 cm2
+48 cm2
+52 cm2
+56 cm2
+Answer: B
+
+Question 3: What is 25% of 200?
+25
+40
+50
+75
+Answer: C
+
+Question 4: A train covers 120 km in 2 hours. Its speed is:
+50 km/h
+55 km/h
+60 km/h
+65 km/h
+Answer: C
