@@ -225,3 +225,62 @@ html[data-theme='light'] .bg-rose-500\/20 {
 html[data-theme='light'] .bg-violet-500\/20 {
   background: rgba(139, 92, 246, 0.12) !important;
 }
+
+html[data-theme='light'] .text-cyan-100,
+html[data-theme='light'] .text-cyan-200,
+html[data-theme='light'] .text-cyan-300 {
+  color: #0f766e !important;
+}
+
+html[data-theme='light'] .text-emerald-100,
+html[data-theme='light'] .text-emerald-200,
+html[data-theme='light'] .text-emerald-300 {
+  color: #047857 !important;
+}
+
+html[data-theme='light'] .text-amber-100,
+html[data-theme='light'] .text-amber-200,
+html[data-theme='light'] .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html[data-theme='light'] .text-rose-100,
+html[data-theme='light'] .text-rose-200,
+html[data-theme='light'] .text-rose-300 {
+  color: #be123c !important;
+}
+
+html[data-theme='light'] .text-violet-100,
+html[data-theme='light'] .text-violet-200,
+html[data-theme='light'] .text-violet-300 {
+  color: #6d28d9 !important;
+}
+
+html[data-theme='light'] .btn-primary {
+  color: #ffffff !important;
+}
+
+html[data-theme='light'] button[class*='bg-cyan-500/20'],
+html[data-theme='light'] button[class*='bg-cyan-400/15'] {
+  color: #0f766e !important;
+}
+
+html[data-theme='light'] button[class*='bg-emerald-500/20'],
+html[data-theme='light'] button[class*='bg-emerald-500/10'] {
+  color: #047857 !important;
+}
+
+html[data-theme='light'] button[class*='bg-amber-500/20'],
+html[data-theme='light'] button[class*='bg-amber-500/10'] {
+  color: #b45309 !important;
+}
+
+html[data-theme='light'] button[class*='bg-rose-500/20'],
+html[data-theme='light'] button[class*='bg-rose-500/18'],
+html[data-theme='light'] button[class*='bg-rose-500/10'] {
+  color: #be123c !important;
+}
+
+html[data-theme='light'] button[class*='bg-violet-500/20'] {
+  color: #6d28d9 !important;
+}
